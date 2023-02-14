@@ -1,15 +1,8 @@
 import streamlit as st
-from streamlit_plotly_events import plotly_events
 import numpy as np
 import plotly.graph_objects as go
-import plotly.express as px
-from plotly import tools
-from plotly import subplots
-import matplotlib.dates as mdates
-import matplotlib.pyplot as plt
-import os, sys
+import sys
 import pandas as pd
-
 
 cptpath = r'../map/get-cpt-master'
 sys.path.append(cptpath)
