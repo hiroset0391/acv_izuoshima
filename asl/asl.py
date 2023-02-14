@@ -1,10 +1,4 @@
-import datetime
 import numpy as np
-import matplotlib.pyplot as plt
-from scipy import ndimage
-from mpl_toolkits.axes_grid1 import make_axes_locatable
-import matplotlib as mpl
-import matplotlib.dates as mdates
 import itertools
 
 def rms(y):
