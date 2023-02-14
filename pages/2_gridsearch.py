@@ -6,7 +6,7 @@ import sys
 import pandas as pd
 
 
-cptpath = r'../map/get-cpt-master'
+cptpath = r'map/get-cpt-master'
 sys.path.append(cptpath)
 import make_map
 
