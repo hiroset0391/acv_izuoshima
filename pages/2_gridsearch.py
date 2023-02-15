@@ -48,26 +48,23 @@ def get_chart_77100278(stream):
 
     # basemap = go.Surface(z=raster, x=lonm, y=latm, colorscale='Earth_r')
     # plot.append(basemap)
-
-    # basemap = go.Surface(z=np.zeros((raster.shape[0], raster.shape[1])), x=lonm, y=latm, colorscale='Earth_r')
+    # print(raster.shape)
+    # Ny, Nx = raster.shape
+    # Ny_decim = Ny//10
+    # Nx_decim = Nx//10
+    # basemap = go.Surface(z=np.zeros((Ny_decim, Nx_decim)), x=lonm[::10], y=latm[::10], colorscale='Earth_r', showscale=False)
     # plot.append(basemap)
 
     # basemap = go.Surface(z=-np.ones((raster.shape[0], raster.shape[1]))*1000, x=lonm, y=latm, colorscale='Earth_r')
     # plot.append(basemap)
 
-
-    xshift = [0] * Ns #Position of the annotation (you can also create this for yshift) 
-    showarrow = [False] * Ns #No arrow
-    font_size = [12] * Ns #Annotation Fontsize
-
-
     
-    for i in range(Ns):
-        station_locs = go.Scatter(x=[STX_idx[i]], y=[STY_idx[i]], hoverinfo='skip', mode='markers+text', textposition="top center",  marker_symbol='triangle-down',  text=[station_list[i]], marker=dict(color='black', size=10))
-        plot.append(station_locs)
+    # for i in range(Ns):
+    #     station_locs = go.Scatter(x=[STX_idx[i]], y=[STY_idx[i]], hoverinfo='skip', mode='markers+text', textposition="top center",  marker_symbol='triangle-down',  text=[station_list[i]], marker=dict(color='black', size=10))
+    #     plot.append(station_locs)
 
-    crater_loc = go.Scatter(x=Crx, y=Cry, mode='markers', hoverinfo='skip', marker_symbol='triangle-up', marker=dict(color='red', size=15))
-    plot.append(crater_loc)
+    # crater_loc = go.Scatter(x=Crx, y=Cry, mode='markers', hoverinfo='skip', marker_symbol='triangle-up', marker=dict(color='red', size=15))
+    # plot.append(crater_loc)
 
 
 
@@ -119,3 +116,4 @@ with col2:
     if st.button(label='save results'):
         df = pd.DataFrame({'X': np.array(SSRs)[:,1], 'Y': np.array(SSRs)[:,2], 'SSR': np.array(SSRs)[:,0]})
         df.to_csv('tmpfiles/asl_results.csv')
+        st.write('saved')
