@@ -146,7 +146,7 @@ try:
         df_gridsearch = pd.DataFrame({'SSR': np.array(st.session_state['ssr'])[:,0], 'X': np.array(st.session_state['ssr'])[:,1], 'Y': np.array(st.session_state['ssr'])[:,2] })
         st.table(df_gridsearch)
 except:
-    st.markdown("Did you forget to conduct ASL?")
+    st.markdown("Let's apply ASL method")
 
 
 with col2:
