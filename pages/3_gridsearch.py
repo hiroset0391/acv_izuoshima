@@ -4,7 +4,7 @@ import numpy as np
 import plotly.graph_objects as go
 import sys
 import pandas as pd
-
+import os
 
 cptpath = r'map/get-cpt-master'
 sys.path.append(cptpath)
@@ -26,9 +26,14 @@ def cache_lst():
     return lst
 
 #@st.cache_data
-def get_chart_77100278(stream):
+def get_chart_77100278(stream, ustations):
     #raster, STX, STY, Crx, Cry = make_map.show_map('Aso', '../map/get-cpt-master/Aso.ch', station_list)
-    raster, STX, STY, STX_idx, STY_idx, Crx, Cry, lonm, latm = make_map.load_map('Aso', 'map/get-cpt-master/Aso.ch') 
+    raster, STX0, STY0, _, _, _, _, lonm, latm = make_map.load_map('Aso', 'map/get-cpt-master/Aso.ch') 
+
+    STX = []; STY = []
+    for i in range(len(ustations)):
+        STX.append(STX0[['N.ASIV', 'N.ASHV', 'N.ASNV', 'N.ASTV',  'V.ASOB', 'V.ASO2', 'V.ASOC'].index(ustations[i])])
+        STY.append(STY0[['N.ASIV', 'N.ASHV', 'N.ASNV', 'N.ASTV',  'V.ASOB', 'V.ASO2', 'V.ASOC'].index(ustations[i])])
     
     plot = []
     basemap = go.Contour(
@@ -86,7 +91,7 @@ def get_chart_77100278(stream):
         source_x = lonm[source_x_idx]
         source_y = latm[source_y_idx]
         
-        SSR = asl.asl(source_x, source_y, STX, STY, station_list, stream)
+        SSR = asl.asl(source_x, source_y, STX, STY, ustations, stream)
         SSRs.append([SSR, source_x_idx, source_y_idx])
 
     
@@ -95,13 +100,17 @@ def get_chart_77100278(stream):
     return SSRs
 
 
-SSRs = get_chart_77100278(rms_vals)
+
+SSRs = get_chart_77100278(rms_vals, station_list)
 
 col1, col2, _, _ = st.columns(4)
 
 with col1:
     if st.button(label='clear'):
         st.cache_resource.clear()
+        if os.path.exists('tmpfiles/asl_results.csv'):
+            os.remove('tmpfiles/asl_results.csv')
+
         try:
             SSRs.clear()
         except:

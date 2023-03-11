@@ -19,9 +19,11 @@ def rms(y):
     return rms
 
 
-colors = ['#F75C2F', '#2EA9DF', '#7BA23F', 'blue', 'green', 'orange', 'red']
+#colors = ['#F75C2F', '#2EA9DF', '#7BA23F', 'blue', 'green', 'orange', 'red']
+#station_list = ['N.ASIV', 'N.ASHV', 'N.ASNV', 'N.ASTV',  'V.ASOB', 'V.ASO2', 'V.ASOC']
 
-station_list = ['N.ASIV', 'N.ASHV', 'N.ASNV', 'N.ASTV',  'V.ASOB', 'V.ASO2', 'V.ASOC']
+station_list = list( pd.read_csv('tmpfiles/selected_stations.csv')['station'] )
+
 Trs = []
 for station in station_list:
     data = np.load('data/tr_'+station+'.npz') 
@@ -35,15 +37,14 @@ Trs /= maxamp
 
 Ns = len(Trs)
 
-
+st.header('define time window')
 if 'ts' not in st.session_state: 
     st.session_state.ts = np.nan #countがsession_stateに追加されていない場合，0で初期化
 
 if 'te' not in st.session_state: 
     st.session_state.te = np.nan #countがsession_stateに追加されていない場合，0で初期化
 
-st.markdown("set a time window to calculate RMS amplitude")
-time_window = st.radio('', ("starttime", "endtime"), horizontal=True)
+time_window = st.radio('', ("define starttime", "define endtime"), horizontal=True)
 
 fig = subplots.make_subplots(rows=Ns, cols=1, shared_xaxes=True, vertical_spacing=0.05, subplot_titles=station_list)
 
@@ -59,20 +60,27 @@ fig.update_xaxes(title="time [s]", row=Ns, col=1)
 fig.update_layout(width=700, height=1000) #
 
 selected_points = plotly_events(fig, click_event=True)
+
 if len(selected_points)>0:
     selected_points = selected_points[0]
     x_start = selected_points["x"]
     x_start_idx = selected_points["pointIndex"]
-
-    if time_window=='starttime':
+    if time_window=='define starttime':
+        
         st.session_state.ts = x_start
-    if time_window=='endtime':
+    if time_window=='define endtime':
         st.session_state.te = x_start
 
-st.markdown("starttime="+str(st.session_state.ts)+"   endtime="+str(st.session_state.te))
+    
+
+st.markdown("#### starttime="+str(st.session_state.ts)+"   endtime="+str(st.session_state.te))
 
 
 if st.button(label='save rms amplitude'):
+    if os.path.exists('tmpfiles/rms.csv'):
+        os.remove('tmpfiles/rms.csv')
+
+
     Trs_trim = asl.trim_trace(elapset, st.session_state.ts, st.session_state.te, Trs)
     rms_vals = []
     for i in range(Ns):

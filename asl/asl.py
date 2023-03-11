@@ -19,8 +19,9 @@ def trim_trace(elapset, ts, te, traces):
 
 def asl(click_X, click_Y, STX, STY, st_name_list, stream):
     Ns = len(STX)
-    Q = 50      ### 地震波の減衰の強さを規定するパラメータ。Qが小さいほど減衰が強い。
-    V = 2000    ### 地震波速度。火山体浅部では表面波は800m/s-1500m/s程度で伝播する。
+    print('Ns', Ns)
+    Q = 50    
+    V = 2000
     low_pass, high_pass = 4, 8
     f = 0.5*(low_pass+high_pass)
     B = (np.pi*f) / (Q*V)
