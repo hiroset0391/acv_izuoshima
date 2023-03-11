@@ -15,18 +15,10 @@ sys.path.append(cptpath)
 import asl
 
 
-# df_in = pd.read_csv('tmpfiles/rms.csv')
-# station_list = list(df_in['station'])
-# Ns = len(station_list)
-# rms_vals = np.array(df_in['rms'])
 rms_vals = np.array( st.session_state['rms'] )
 Ns = len(rms_vals)
 station_list = st.session_state['ustations']
 
-# @st.cache_resource()
-# def cache_lst():
-#     lst = []
-#     return lst
 
 @st.cache_data(persist="disk")
 def cache_lst():
@@ -85,11 +77,6 @@ def get_chart_77100278(stream, ustations, ssr_vals):
         station_locs = go.Scatter(x=[STX_idx[i]], y=[STY_idx[i]], hoverinfo='skip', mode='markers+text', textposition="top center",  marker_symbol='triangle-down',  text=[station_list[i]], marker=dict(color='black', size=10))
         plot.append(station_locs)
 
-    # crater_loc = go.Scatter(x=Crx, y=Cry, mode='markers', hoverinfo='skip', marker_symbol='triangle-up', marker=dict(color='red', size=15))
-    # plot.append(crater_loc)
-
-
-
     fig = go.Figure(data =
         plot
         )
@@ -100,7 +87,6 @@ def get_chart_77100278(stream, ustations, ssr_vals):
     selected_points = plotly_events(fig, click_event=True)
     source_x = np.nan
     source_y = np.nan
-    #SSRs = cache_lst()
     if len(selected_points)>0:
         selected_points = selected_points[0]
         source_x_idx = selected_points['x']
@@ -113,7 +99,6 @@ def get_chart_77100278(stream, ustations, ssr_vals):
 
         try:
             ssr_arr = st.session_state['ssr']
-            print(ssr_arr)
             ssr_arr.append([SSR, source_x_idx, source_y_idx])
             st.session_state['ssr'] = ssr_arr
         except:
@@ -128,10 +113,8 @@ SSRs = get_chart_77100278(rms_vals, station_list, ssr_vals)
 
 
 col1, col2, _, _ = st.columns(4)
-
 with col1:
     if st.button(label='clear'):
-        #st.cache_resource.clear()
         del st.session_state['ssr']
 
         try:
@@ -142,7 +125,6 @@ with col1:
 
 try:
     if len(st.session_state['ssr'])>0: 
-        #df_gridsearch = pd.DataFrame({'SSR': np.array(SSRs)[:,0], 'X': np.array(SSRs)[:,1], 'Y': np.array(SSRs)[:,2] })
         df_gridsearch = pd.DataFrame({'SSR': np.array(st.session_state['ssr'])[:,0], 'X': np.array(st.session_state['ssr'])[:,1], 'Y': np.array(st.session_state['ssr'])[:,2] })
         st.table(df_gridsearch)
 except:
@@ -151,8 +133,6 @@ except:
 
 with col2:
     if st.button(label='save results'):
-        #df = pd.DataFrame({'X': np.array(SSRs)[:,1], 'Y': np.array(SSRs)[:,2], 'SSR': np.array(SSRs)[:,0]})
-        #df.to_csv('tmpfiles/asl_results.csv')
         asl_list = make_asl_list()
         for i in range(len(st.session_state['ssr'])):
             asl_list.append([st.session_state['ssr'][i][1], st.session_state['ssr'][i][2], st.session_state['ssr'][i][0]])
