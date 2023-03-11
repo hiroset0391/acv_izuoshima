@@ -19,6 +19,11 @@ def rms(y):
     return rms
 
 
+@st.cache_data()
+def make_ustation_list():
+    lst = []
+    return lst
+
 colors = ['#F75C2F', '#2EA9DF', '#7BA23F', 'blue', 'green', 'orange', 'red']
 
 station_list = ['N.ASIV', 'N.ASHV', 'N.ASNV', 'N.ASTV',  'V.ASOB', 'V.ASO2', 'V.ASOC']
@@ -59,9 +64,12 @@ if ASOC:
     used_station_list_idx.append(6)
 
 if st.button(label='save stations'):
-    if os.path.exists('tmpfiles/selected_stations.csv'):
-        os.remove('tmpfiles/selected_stations.csv')
+    
+    ustation_list = make_ustation_list()
+    for i in used_station_list:
+        ustation_list.append(i)
 
-    df_out = pd.DataFrame({'station': used_station_list})
-    df_out.to_csv('tmpfiles/selected_stations.csv', index=False)
+    st.session_state['ustations'] = ustation_list
+
     st.write('saved')
+    #st.write(ustation_list)

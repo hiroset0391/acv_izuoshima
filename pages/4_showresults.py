@@ -15,14 +15,24 @@ import asl
 
 
 # if st.button(label='show results'):
+try:
+    X = np.array(st.session_state['asl'])[:,0]
+    Y = np.array(st.session_state['asl'])[:,1]
+    SSRS = np.array(st.session_state['asl'])[:,2] 
+    SSRS /= np.min(SSRS)
+    station_list = st.session_state['ustations']
+    Ns = len(station_list)
 
-if os.path.exists('tmpfiles/asl_results.csv'):
-    df_in = pd.read_csv('tmpfiles/asl_results.csv')
-    X = np.array(df_in['X'])
-    Y = np.array(df_in['Y'])
-    SSRS = np.array(df_in['SSR'])
+    raster, STX0, STY0, STX_idx0, STY_idx0, Crx, Cry, lonm, latm = make_map.load_map('Aso', 'map/get-cpt-master/Aso.ch') 
+    STX = []; STY = []
+    STX_idx = []; STY_idx = []
+    for i in range(len(station_list)):
+        STX.append(STX0[['N.ASIV', 'N.ASHV', 'N.ASNV', 'N.ASTV',  'V.ASOB', 'V.ASO2', 'V.ASOC'].index(station_list[i])])
+        STY.append(STY0[['N.ASIV', 'N.ASHV', 'N.ASNV', 'N.ASTV',  'V.ASOB', 'V.ASO2', 'V.ASOC'].index(station_list[i])])
+        STX_idx.append(STX_idx0[['N.ASIV', 'N.ASHV', 'N.ASNV', 'N.ASTV',  'V.ASOB', 'V.ASO2', 'V.ASOC'].index(station_list[i])])
+        STY_idx.append(STY_idx0[['N.ASIV', 'N.ASHV', 'N.ASNV', 'N.ASTV',  'V.ASOB', 'V.ASO2', 'V.ASOC'].index(station_list[i])])
 
-    raster, STX, STY, STX_idx, STY_idx, Crx, Cry, lonm, latm = make_map.load_map('Aso', 'map/get-cpt-master/Aso.ch') 
+
     plot = []
     basemap = go.Contour(
             z=raster,
@@ -69,6 +79,11 @@ if os.path.exists('tmpfiles/asl_results.csv'):
     ) 
     plot.append(ssr_scatt)
 
+    for i in range(Ns):
+        station_locs = go.Scatter(x=[STX_idx[i]], y=[STY_idx[i]], hoverinfo='skip', mode='markers+text', textposition="top center",  marker_symbol='triangle-down',  text=[station_list[i]], marker=dict(color='black', size=10))
+        plot.append(station_locs)
+
+
     fig = go.Figure(data =
         plot,
     )
@@ -76,4 +91,5 @@ if os.path.exists('tmpfiles/asl_results.csv'):
     fig.update_layout(showlegend=False)
     st.plotly_chart(fig, theme=None)
 
-        
+except:
+    st.markdown("Did you forget to save ASL result?")

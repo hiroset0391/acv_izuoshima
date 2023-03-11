@@ -18,12 +18,16 @@ def rms(y):
     rms = np.sqrt(np.sum(y**2) / N)
     return rms
 
+@st.cache_data()
+def make_rms_list():
+    lst = []
+    return lst
+
 
 #colors = ['#F75C2F', '#2EA9DF', '#7BA23F', 'blue', 'green', 'orange', 'red']
 #station_list = ['N.ASIV', 'N.ASHV', 'N.ASNV', 'N.ASTV',  'V.ASOB', 'V.ASO2', 'V.ASOC']
 
-station_list = list( pd.read_csv('tmpfiles/selected_stations.csv')['station'] )
-
+station_list = st.session_state['ustations']
 Trs = []
 for station in station_list:
     data = np.load('data/tr_'+station+'.npz') 
@@ -77,16 +81,18 @@ st.markdown("#### starttime="+str(st.session_state.ts)+"   endtime="+str(st.sess
 
 
 if st.button(label='save rms amplitude'):
-    if os.path.exists('tmpfiles/rms.csv'):
-        os.remove('tmpfiles/rms.csv')
-
 
     Trs_trim = asl.trim_trace(elapset, st.session_state.ts, st.session_state.te, Trs)
     rms_vals = []
     for i in range(Ns):
         rms_vals.append(rms(Trs_trim[i]))
 
-    df_out = pd.DataFrame({'station': station_list, 'rms': rms_vals})
-    df_out.to_csv('tmpfiles/rms.csv', index=False)
+    rms_list = make_rms_list()
+    for i in rms_vals:
+        rms_list.append(i)
+
+    st.session_state['rms'] = rms_list
 
     st.write('saved')
+    df_rms = pd.DataFrame({'station': station_list, 'RMS': st.session_state['rms']})
+    st.dataframe(df_rms)

@@ -15,25 +15,37 @@ sys.path.append(cptpath)
 import asl
 
 
-df_in = pd.read_csv('tmpfiles/rms.csv')
-station_list = list(df_in['station'])
-Ns = len(station_list)
-rms_vals = np.array(df_in['rms'])
+# df_in = pd.read_csv('tmpfiles/rms.csv')
+# station_list = list(df_in['station'])
+# Ns = len(station_list)
+# rms_vals = np.array(df_in['rms'])
+rms_vals = np.array( st.session_state['rms'] )
+Ns = len(rms_vals)
+station_list = st.session_state['ustations']
 
 @st.cache_resource()
 def cache_lst():
     lst = []
     return lst
 
+@st.cache_data()
+def make_asl_list():
+    lst = []
+    return lst
+
 #@st.cache_data
 def get_chart_77100278(stream, ustations):
     #raster, STX, STY, Crx, Cry = make_map.show_map('Aso', '../map/get-cpt-master/Aso.ch', station_list)
-    raster, STX0, STY0, _, _, _, _, lonm, latm = make_map.load_map('Aso', 'map/get-cpt-master/Aso.ch') 
+    raster, STX0, STY0, STX_idx0, STY_idx0, _, _, lonm, latm = make_map.load_map('Aso', 'map/get-cpt-master/Aso.ch') 
 
     STX = []; STY = []
+    STX_idx = []; STY_idx = []
     for i in range(len(ustations)):
         STX.append(STX0[['N.ASIV', 'N.ASHV', 'N.ASNV', 'N.ASTV',  'V.ASOB', 'V.ASO2', 'V.ASOC'].index(ustations[i])])
         STY.append(STY0[['N.ASIV', 'N.ASHV', 'N.ASNV', 'N.ASTV',  'V.ASOB', 'V.ASO2', 'V.ASOC'].index(ustations[i])])
+        STX_idx.append(STX_idx0[['N.ASIV', 'N.ASHV', 'N.ASNV', 'N.ASTV',  'V.ASOB', 'V.ASO2', 'V.ASOC'].index(ustations[i])])
+        STY_idx.append(STY_idx0[['N.ASIV', 'N.ASHV', 'N.ASNV', 'N.ASTV',  'V.ASOB', 'V.ASO2', 'V.ASOC'].index(ustations[i])])
+    
     
     plot = []
     basemap = go.Contour(
@@ -64,9 +76,9 @@ def get_chart_77100278(stream, ustations):
     # plot.append(basemap)
 
     
-    # for i in range(Ns):
-    #     station_locs = go.Scatter(x=[STX_idx[i]], y=[STY_idx[i]], hoverinfo='skip', mode='markers+text', textposition="top center",  marker_symbol='triangle-down',  text=[station_list[i]], marker=dict(color='black', size=10))
-    #     plot.append(station_locs)
+    for i in range(Ns):
+        station_locs = go.Scatter(x=[STX_idx[i]], y=[STY_idx[i]], hoverinfo='skip', mode='markers+text', textposition="top center",  marker_symbol='triangle-down',  text=[station_list[i]], marker=dict(color='black', size=10))
+        plot.append(station_locs)
 
     # crater_loc = go.Scatter(x=Crx, y=Cry, mode='markers', hoverinfo='skip', marker_symbol='triangle-up', marker=dict(color='red', size=15))
     # plot.append(crater_loc)
@@ -113,6 +125,7 @@ with col1:
 
         try:
             SSRs.clear()
+            del st.session_state['asl']
         except:
             pass
 
@@ -123,6 +136,12 @@ if len(SSRs)>0:
 
 with col2:
     if st.button(label='save results'):
-        df = pd.DataFrame({'X': np.array(SSRs)[:,1], 'Y': np.array(SSRs)[:,2], 'SSR': np.array(SSRs)[:,0]})
-        df.to_csv('tmpfiles/asl_results.csv')
+        #df = pd.DataFrame({'X': np.array(SSRs)[:,1], 'Y': np.array(SSRs)[:,2], 'SSR': np.array(SSRs)[:,0]})
+        #df.to_csv('tmpfiles/asl_results.csv')
+        asl_list = make_asl_list()
+        for i in range(len(SSRs)):
+            asl_list.append([SSRs[i][1], SSRs[i][2], SSRs[i][0]])
+
+        st.session_state['asl'] = asl_list
         st.write('saved')
+        
