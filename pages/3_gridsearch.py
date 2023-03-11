@@ -23,18 +23,23 @@ rms_vals = np.array( st.session_state['rms'] )
 Ns = len(rms_vals)
 station_list = st.session_state['ustations']
 
-@st.cache_resource()
+# @st.cache_resource()
+# def cache_lst():
+#     lst = []
+#     return lst
+
+@st.cache_data(persist="disk")
 def cache_lst():
     lst = []
     return lst
 
-@st.cache_data()
+@st.cache_data(persist="disk")
 def make_asl_list():
     lst = []
     return lst
 
 #@st.cache_data
-def get_chart_77100278(stream, ustations):
+def get_chart_77100278(stream, ustations, ssr_vals):
     #raster, STX, STY, Crx, Cry = make_map.show_map('Aso', '../map/get-cpt-master/Aso.ch', station_list)
     raster, STX0, STY0, STX_idx0, STY_idx0, _, _, lonm, latm = make_map.load_map('Aso', 'map/get-cpt-master/Aso.ch') 
 
@@ -95,7 +100,7 @@ def get_chart_77100278(stream, ustations):
     selected_points = plotly_events(fig, click_event=True)
     source_x = np.nan
     source_y = np.nan
-    SSRs = cache_lst()
+    #SSRs = cache_lst()
     if len(selected_points)>0:
         selected_points = selected_points[0]
         source_x_idx = selected_points['x']
@@ -104,24 +109,30 @@ def get_chart_77100278(stream, ustations):
         source_y = latm[source_y_idx]
         
         SSR = asl.asl(source_x, source_y, STX, STY, ustations, stream)
-        SSRs.append([SSR, source_x_idx, source_y_idx])
+        ssr_vals.append([SSR, source_x_idx, source_y_idx])
 
+        try:
+            ssr_arr = st.session_state['ssr']
+            print(ssr_arr)
+            ssr_arr.append([SSR, source_x_idx, source_y_idx])
+            st.session_state['ssr'] = ssr_arr
+        except:
+            st.session_state['ssr'] = [[SSR, source_x_idx, source_y_idx]]
     
     
-    
-    return SSRs
+    return ssr_vals
 
 
+ssr_vals = cache_lst()
+SSRs = get_chart_77100278(rms_vals, station_list, ssr_vals)
 
-SSRs = get_chart_77100278(rms_vals, station_list)
 
 col1, col2, _, _ = st.columns(4)
 
 with col1:
     if st.button(label='clear'):
-        st.cache_resource.clear()
-        if os.path.exists('tmpfiles/asl_results.csv'):
-            os.remove('tmpfiles/asl_results.csv')
+        #st.cache_resource.clear()
+        del st.session_state['ssr']
 
         try:
             SSRs.clear()
@@ -129,9 +140,13 @@ with col1:
         except:
             pass
 
-if len(SSRs)>0: 
-    df_gridsearch = pd.DataFrame({'SSR': np.array(SSRs)[:,0], 'X': np.array(SSRs)[:,1], 'Y': np.array(SSRs)[:,2] })
-    st.table(df_gridsearch)
+try:
+    if len(st.session_state['ssr'])>0: 
+        #df_gridsearch = pd.DataFrame({'SSR': np.array(SSRs)[:,0], 'X': np.array(SSRs)[:,1], 'Y': np.array(SSRs)[:,2] })
+        df_gridsearch = pd.DataFrame({'SSR': np.array(st.session_state['ssr'])[:,0], 'X': np.array(st.session_state['ssr'])[:,1], 'Y': np.array(st.session_state['ssr'])[:,2] })
+        st.table(df_gridsearch)
+except:
+    st.markdown("Did you forget to conduct ASL?")
 
 
 with col2:
@@ -139,8 +154,8 @@ with col2:
         #df = pd.DataFrame({'X': np.array(SSRs)[:,1], 'Y': np.array(SSRs)[:,2], 'SSR': np.array(SSRs)[:,0]})
         #df.to_csv('tmpfiles/asl_results.csv')
         asl_list = make_asl_list()
-        for i in range(len(SSRs)):
-            asl_list.append([SSRs[i][1], SSRs[i][2], SSRs[i][0]])
+        for i in range(len(st.session_state['ssr'])):
+            asl_list.append([st.session_state['ssr'][i][1], st.session_state['ssr'][i][2], st.session_state['ssr'][i][0]])
 
         st.session_state['asl'] = asl_list
         st.write('saved')

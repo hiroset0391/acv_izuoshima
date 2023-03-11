@@ -19,7 +19,6 @@ def trim_trace(elapset, ts, te, traces):
 
 def asl(click_X, click_Y, STX, STY, st_name_list, stream):
     Ns = len(STX)
-    print('Ns', Ns)
     Q = 50    
     V = 2000
     low_pass, high_pass = 4, 8

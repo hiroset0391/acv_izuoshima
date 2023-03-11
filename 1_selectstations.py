@@ -19,7 +19,7 @@ def rms(y):
     return rms
 
 
-@st.cache_data()
+@st.cache_data(persist="disk")
 def make_ustation_list():
     lst = []
     return lst

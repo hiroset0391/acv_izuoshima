@@ -18,7 +18,7 @@ def rms(y):
     rms = np.sqrt(np.sum(y**2) / N)
     return rms
 
-@st.cache_data()
+@st.cache_data(persist="disk")
 def make_rms_list():
     lst = []
     return lst
