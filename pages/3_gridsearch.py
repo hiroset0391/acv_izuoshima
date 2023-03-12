@@ -122,7 +122,7 @@ Q_str =  st.text_input(label='attenuation factor', value='50')
 
 with st.expander('See examples of the theoretical curve'):
     st.latex(r'''
-    A\left(r\right)\propt\frac{1}{\sqrt{r}} \exp \left(-\frac{\pi f r}{QV} \right)
+    A\left(r\right)\propto\frac{1}{\sqrt{r}} \exp \left(-\frac{\pi f r}{QV} \right)
     ''')
     st.markdown("$V:$ wave velocity, $Q:$ attenuation factor (small $Q$->high attenuation), $f:$ frequency, $r:$ distance from the source")
     image = Image.open('theoretical_curve/curve.png')
