@@ -68,13 +68,16 @@ try:
         x=X,
         y=Y,
         mode='markers',
-        name="SSR",
+        name="SSR/SSR_min",
         marker=dict(
             size=16,
-            color=SSRS,  # マーカーの色をyにする
-            colorscale='Viridis_r',  # カラースケール変更
-            showscale=True  # カラーバーの表示
+            color=SSRS,
+            colorscale='Viridis_r',
+            showscale=True,
+            cmin = 1,
+            cmax = 1.2,
         ),
+        
         
     ) 
     plot.append(ssr_scatt)

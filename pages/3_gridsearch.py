@@ -93,7 +93,6 @@ def get_chart_77100278(stream, ustations, ssr_vals, V, Q):
     selected_points = plotly_events(fig, click_event=True)
     source_x = np.nan
     source_y = np.nan
-    st.write(V, Q)
     if len(selected_points)>0:
         selected_points = selected_points[0]
         source_x_idx = selected_points['x']
