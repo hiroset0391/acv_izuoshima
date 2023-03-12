@@ -5,7 +5,8 @@ import plotly.graph_objects as go
 from plotly import subplots
 import os, sys
 import pandas as pd
-
+import scipy.signal as ssig
+from PIL import Image
 
 cptpath = os.getcwd()+r'/asl'
 sys.path.append(cptpath)
@@ -18,6 +19,18 @@ def rms(y):
     rms = np.sqrt(np.sum(y**2) / N)
     return rms
 
+def cosTaper(windL, percent):
+    N = windL
+    tp = np.ones(N)
+    for i in range(int(N * percent + 1)):
+        tp[i] *= 0.5 * (1 - np.cos((np.pi * i) / (N * percent)))
+
+    for i in range(int(N * (1 - percent)), N):
+        tp[i] *= 0.5 * (1 - np.cos((np.pi * (i + 1)) / (N * percent)))
+
+    return tp
+
+
 @st.cache_data(persist="disk")
 def make_rms_list():
     lst = []
@@ -28,11 +41,34 @@ def make_rms_list():
 #station_list = ['N.ASIV', 'N.ASHV', 'N.ASNV', 'N.ASTV',  'V.ASOB', 'V.ASO2', 'V.ASOC']
 
 station_list = st.session_state['ustations']
+
+
+st.header('define frequency band')
+
+with st.expander('See spectrogram'):
+    image = Image.open('spectrogram/spec_V.ASO2.png')
+    st.image(image, width=680)
+
+
+Fs = 20.0
+nyq = 0.5 * Fs
+fmin, fmax = st.slider(label='',
+            min_value=0.01,
+            max_value=9.99,
+            value=(4.0, 8.0),
+            )
+
+[b12, a12] = ssig.butter(3, Wn=[fmin/nyq, fmax/nyq], btype='bandpass')
+
+
 Trs = []
 for station in station_list:
-    data = np.load('data/tr_'+station+'.npz') 
+    data = np.load('data/tr_'+station+'.npz')
     elapset = data['t']
     tr = data['y']
+    tp = cosTaper(len(tr), 0.01)
+    tr *= tp
+    tr = ssig.filtfilt(b12, a12, tr)
     tr -= np.nanmean(tr)
     Trs.append(tr)
 Trs = np.array(Trs)
@@ -40,6 +76,9 @@ maxamp = np.nanmax( np.nanmax(Trs, axis=1) )
 Trs /= maxamp
 
 Ns = len(Trs)
+
+
+
 
 st.header('define time window')
 if 'ts' not in st.session_state: 

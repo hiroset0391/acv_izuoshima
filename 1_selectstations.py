@@ -6,6 +6,7 @@ from plotly import subplots
 import os, sys
 import pandas as pd
 import os
+from PIL import Image
 
 cptpath = os.getcwd()+r'/asl'
 sys.path.append(cptpath)
@@ -29,6 +30,9 @@ colors = ['#F75C2F', '#2EA9DF', '#7BA23F', 'blue', 'green', 'orange', 'red']
 station_list = ['N.ASIV', 'N.ASHV', 'N.ASNV', 'N.ASTV',  'V.ASOB', 'V.ASO2', 'V.ASOC']
 
 st.header('select stations')
+image = Image.open('map/img/map.png')
+st.image(image, width=400)
+
 col = st.columns(4)
 ASIV = col[0].checkbox(label=station_list[0])
 ASHV = col[1].checkbox(label=station_list[1])
