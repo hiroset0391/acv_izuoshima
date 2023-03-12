@@ -131,7 +131,6 @@ with st.expander('See examples of the theoretical curve'):
 if st.button(label='save parameters'):
     param_list = make_param_list()
     param_list.append([float(velocity_str), float(Q_str)])
-    st.write(param_list)
     st.session_state['velocity'] = param_list[0][0]
     st.session_state['Q'] = param_list[0][1]
 
