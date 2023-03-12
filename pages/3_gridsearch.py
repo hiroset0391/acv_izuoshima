@@ -31,6 +31,11 @@ def make_asl_list():
     lst = []
     return lst
 
+@st.cache_data(persist="disk")
+def make_param_list():
+    lst = []
+    return lst
+
 #@st.cache_data
 def get_chart_77100278(stream, ustations, ssr_vals, V, Q):
     #raster, STX, STY, Crx, Cry = make_map.show_map('Aso', '../map/get-cpt-master/Aso.ch', station_list)
@@ -88,6 +93,7 @@ def get_chart_77100278(stream, ustations, ssr_vals, V, Q):
     selected_points = plotly_events(fig, click_event=True)
     source_x = np.nan
     source_y = np.nan
+    st.write(V, Q)
     if len(selected_points)>0:
         selected_points = selected_points[0]
         source_x_idx = selected_points['x']
@@ -124,8 +130,11 @@ with st.expander('See examples of the theoretical curve'):
     st.image(image, width=400)
 
 if st.button(label='save parameters'):
-    st.session_state['velocity'] = float(velocity_str)
-    st.session_state['Q'] = float(Q_str)
+    param_list = make_param_list()
+    param_list.append([float(velocity_str), float(Q_str)])
+    st.write(param_list)
+    st.session_state['velocity'] = param_list[0][0]
+    st.session_state['Q'] = param_list[0][1]
 
 st.header('Search a souce location (Click on a point on the map)')
 ssr_vals = cache_lst()
