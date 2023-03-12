@@ -17,11 +17,11 @@ def trim_trace(elapset, ts, te, traces):
 
     return np.array(traces_trim)
 
-def asl(click_X, click_Y, STX, STY, st_name_list, stream):
+def asl(click_X, click_Y, STX, STY, st_name_list, stream, low_pass, high_pass, V, Q):
     Ns = len(STX)
-    Q = 50    
-    V = 2000
-    low_pass, high_pass = 4, 8
+    # Q = 50    
+    # V = 2000
+    # low_pass, high_pass = 4, 8
     f = 0.5*(low_pass+high_pass)
     B = (np.pi*f) / (Q*V)
     As = 1.0

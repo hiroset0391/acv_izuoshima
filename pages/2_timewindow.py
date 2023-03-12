@@ -59,7 +59,8 @@ fmin, fmax = st.slider(label='',
             )
 
 [b12, a12] = ssig.butter(3, Wn=[fmin/nyq, fmax/nyq], btype='bandpass')
-
+st.session_state['low_pass'] = fmin
+st.session_state['high_pass'] = fmax
 
 Trs = []
 for station in station_list:

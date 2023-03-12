@@ -5,6 +5,7 @@ import plotly.graph_objects as go
 import sys
 import pandas as pd
 import os
+from PIL import Image
 
 cptpath = r'map/get-cpt-master'
 sys.path.append(cptpath)
@@ -31,7 +32,7 @@ def make_asl_list():
     return lst
 
 #@st.cache_data
-def get_chart_77100278(stream, ustations, ssr_vals):
+def get_chart_77100278(stream, ustations, ssr_vals, V, Q):
     #raster, STX, STY, Crx, Cry = make_map.show_map('Aso', '../map/get-cpt-master/Aso.ch', station_list)
     raster, STX0, STY0, STX_idx0, STY_idx0, _, _, lonm, latm = make_map.load_map('Aso', 'map/get-cpt-master/Aso.ch') 
 
@@ -94,7 +95,7 @@ def get_chart_77100278(stream, ustations, ssr_vals):
         source_x = lonm[source_x_idx]
         source_y = latm[source_y_idx]
         
-        SSR = asl.asl(source_x, source_y, STX, STY, ustations, stream)
+        SSR = asl.asl(source_x, source_y, STX, STY, ustations, stream, st.session_state['low_pass'], st.session_state['high_pass'], V, Q)
         ssr_vals.append([SSR, source_x_idx, source_y_idx])
 
         try:
@@ -108,9 +109,30 @@ def get_chart_77100278(stream, ustations, ssr_vals):
     return ssr_vals
 
 
-ssr_vals = cache_lst()
-SSRs = get_chart_77100278(rms_vals, station_list, ssr_vals)
 
+st.header('define parameters (wave velocity and attenuation)')
+
+velocity_str = st.text_input(label='wave velocity [m/s]', value='2000')
+Q_str =  st.text_input(label='attenuation factor', value='50')
+
+with st.expander('See examples of the theoretical curve'):
+    st.latex(r'''
+    A\left(r\right)\approx\frac{1}{\sqrt{r}} \exp \left(-\frac{\pi f r}{QV} \right)
+    ''')
+    st.markdown("$V:$ wave velocity, $Q:$ attenuation factor (small $Q$->high attenuation), $f:$ frequency, $r:$ distance from the source")
+    image = Image.open('theoretical_curve/curve.png')
+    st.image(image, width=400)
+
+if st.button(label='save parameters'):
+    st.session_state['velocity'] = float(velocity_str)
+    st.session_state['Q'] = float(Q_str)
+
+st.header('Search a souce location (Click on a point on the map)')
+ssr_vals = cache_lst()
+try:
+    SSRs = get_chart_77100278(rms_vals, station_list, ssr_vals, st.session_state['velocity'], st.session_state['Q'])
+except:
+    st.markdown("Please define parameters")
 
 col1, col2, _, _ = st.columns(4)
 with col1:
