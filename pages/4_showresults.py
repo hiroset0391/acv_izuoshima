@@ -75,7 +75,7 @@ try:
             colorscale='Viridis_r',
             showscale=True,
             cmin = 1,
-            cmax = 1.2,
+            cmax = 1.3,
         ),
         
         
